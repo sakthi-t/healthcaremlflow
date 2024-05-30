@@ -2,6 +2,7 @@ import logging
 import sys
 import warnings
 from urllib.parse import urlparse
+import dagshub
 
 import numpy as np
 import pandas as pd
@@ -70,6 +71,13 @@ if __name__ == "__main__":
     alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5
     l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.7
 
+    
+    # Initialize DagsHub
+    dagshub.init(repo_owner='sakthi-t', repo_name='healthcaremlflow', mlflow=True)
+
+    # Set the MLflow tracking URI
+    mlflow.set_tracking_uri("https://dagshub.com/sakthi-t/healthcaremlflow.mlflow")
+
     with mlflow.start_run():
         lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
         lr.fit(train_x, train_y)
@@ -89,19 +97,37 @@ if __name__ == "__main__":
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
-        predictions = lr.predict(train_x)
-        signature = infer_signature(train_x, predictions)
+        # predictions = lr.predict(train_x)
+        # signature = infer_signature(train_x, predictions)
+
+        remote_server_uri = "https://dagshub.com/sakthi-t/healthcaremlflow.mlflow"
+        mlflow.set_tracking_uri(remote_server_uri)
 
         tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
 
         # Model registry does not work with file store
+        # if tracking_url_type_store != "file":
+            # Register the model
+            # There are other ways to use the Model Registry, which depends on the use case,
+            # please refer to the doc for more information:
+            # https://mlflow.org/docs/latest/model-registry.html#api-workflow
+        #    mlflow.sklearn.log_model(
+        #        lr, "model", registered_model_name="ElasticnetHealthcareModel", signature=signature
+        #    )
+        # else:
+        #    mlflow.sklearn.log_model(lr, "model", signature=signature)
+
+        
         if tracking_url_type_store != "file":
             # Register the model
             # There are other ways to use the Model Registry, which depends on the use case,
             # please refer to the doc for more information:
             # https://mlflow.org/docs/latest/model-registry.html#api-workflow
             mlflow.sklearn.log_model(
-                lr, "model", registered_model_name="ElasticnetHealthcareModel", signature=signature
-            )
+                lr, "model", registered_model_name="ElasticnetHealthcareModel")
         else:
-            mlflow.sklearn.log_model(lr, "model", signature=signature)
+            mlflow.sklearn.log_model(lr, "model")
+
+
+# set MLFLOW_TRACKING_URI=https://dagshub.com/sakthi-t/healthcaremlflow.mlflow
+# set MLFLOW_TRACKING_USERNAME=sakthi-t

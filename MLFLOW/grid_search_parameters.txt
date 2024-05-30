@@ -1,0 +1,7 @@
+Result of Grid Search
+Fitting 5 folds for each of 16 candidates, totalling 80 fits
+Best parameters found: {'alpha': 0.5, 'l1_ratio': 0.7}
+Best ElasticNet model (alpha=0.5, l1_ratio=0.7):
+RMSE: 2.0378528536041216
+MAE: 1.678142557398358
+R2: 0.41368725788614247

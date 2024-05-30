@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Sakthi/healthcaremlflow/MLFLOW/mlruns/0/6ce4f95bce3f422683c08682cf8f4a3b/artifacts
+end_time: 1717046861707
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 6ce4f95bce3f422683c08682cf8f4a3b
+run_name: stylish-horse-706
+run_uuid: 6ce4f95bce3f422683c08682cf8f4a3b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1717046855510
+status: 3
+tags: []
+user_id: Sakthi

@@ -6,20 +6,12 @@ import numpy as np
 import pandas as pd
 import mlflow
 import mlflow.sklearn
-from google.cloud import bigquery
 import os
 from datetime import datetime
 
-st.set_page_config(page_title="hba1c Prediction", layout="centered")
+st.set_page_config(page_title="HBA1C Prediction", layout="centered")
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'biquerykey.json'
-
-# Initialize BigQuery client
-client = bigquery.Client()
-
-# Load patient IDs for the dropdown
-dim_patients_table = """SELECT patient_id FROM `bigqueryimdb.healthcare.dim_patients`;"""
-df_patients = client.query(dim_patients_table).to_dataframe()
+df_patients = pd.read_csv("../Hba1cData/dim_patients_final_rev01.csv")
 patient_ids = df_patients['patient_id'].tolist()
 
 # Set the MLflow tracking URI to DagsHub
@@ -27,7 +19,7 @@ mlflow.set_tracking_uri("https://dagshub.com/sakthi-t/healthcaremlflow.mlflow")
 
 # Load the model from MLflow model registry
 model_name = "ElasticnetHealthcareModel"
-model_version = 1
+model_version = 3
 model_uri = f"models:/{model_name}/{model_version}"
 loaded_model = mlflow.sklearn.load_model(model_uri)
 
@@ -48,13 +40,24 @@ def predict_hba1c(patient_id, visited_date, sugar):
     return prediction[0]
 
 # Streamlit interface
-st.title("hba1c Prediction")
-st.write("Select Patient ID, Visited Date, and Sugar value to predict hba1c.")
+st.title("HBA1C Prediction")
+st.write("Select Patient ID, Visited Date, and Sugar value to predict HBA1C.")
+
+st.markdown(
+    """
+    <div style="background-color: #FF9798; color: white; padding: 10px; border-radius: 5px;">
+        Choose sugar levels between 50 and 600. HBA1C levels are influenced by sugar values: higher sugar typically results in higher HBA1C. 
+        This machine learning project uses synthetic data and is not a definitive method to determine HBA1C levels. For accurate results, 
+        please select a date within 2024. The dataset contains dates from 2023 to April 2024. Patient names are fictional. Users can only select 
+        from existing patient IDs, and there is no correlation between User ID and sugar levels.
+    </div>
+    """, unsafe_allow_html=True
+)
 
 patient_id = st.selectbox("Patient ID", patient_ids)
-visited_date = st.date_input("Visited Date")
-sugar = st.number_input("Sugar", min_value=0.0, max_value=500.0, value=100.0)
+visited_date = st.date_input("Visited Date", min_value=datetime(2023, 1, 1), max_value=datetime(2024, 4, 30))
+sugar = st.number_input("Sugar", min_value=50.0, max_value=600.0, value=100.0)
 
-if st.button("Predict hba1c"):
+if st.button("Predict HBA1C"):
     prediction = predict_hba1c(patient_id, visited_date, sugar)
-    st.write(f"Predicted hba1c: {prediction}")
+    st.write(f"Predicted HBA1C: {prediction}")

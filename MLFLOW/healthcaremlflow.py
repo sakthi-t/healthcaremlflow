@@ -15,13 +15,9 @@ import mlflow.sklearn
 from mlflow.models import infer_signature
 
 import os
-from google.cloud import bigquery
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
-
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'biquerykey.json'
-client = bigquery.Client()
 
 
 def eval_metrics(actual, pred):
@@ -35,17 +31,14 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
-    dim_patients_table = """SELECT * FROM `bigqueryimdb.healthcare.dim_patients`;"""
-    fact_visits_table = """SELECT * FROM `bigqueryimdb.healthcare.fact_visits`;"""
-
-    df_patients = client.query(dim_patients_table).to_dataframe()
-    df_visits = client.query(fact_visits_table).to_dataframe()
+    df_patients = pd.read_csv("../Hba1cData/dim_patients_final_rev01.csv")
+    df_visits = pd.read_csv("../Hba1cData/fact_visits_final_rev01.csv")
 
     try:
         data = df_visits[['patient_id', 'visited_date', 'sugar', 'hba1c']]
     except Exception as e:
         logger.exception(
-            "Unable to download the data from BigQuery! %s", e
+            "Unable to load csv files! %s", e
         )
         sys.exit(1)
 

@@ -2,22 +2,12 @@ import numpy as np
 import pandas as pd
 import mlflow
 import mlflow.sklearn
-from google.cloud import bigquery
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'biquerykey.json'
-
-# Initialize BigQuery client
-client = bigquery.Client()
-
-# Load data
-dim_patients_table = """SELECT * FROM `bigqueryimdb.healthcare.dim_patients`;"""
-fact_visits_table = """SELECT * FROM `bigqueryimdb.healthcare.fact_visits`;"""
-
-df_patients = client.query(dim_patients_table).to_dataframe()
-df_visits = client.query(fact_visits_table).to_dataframe()
+df_patients = pd.read_csv("../Hba1cData/dim_patients_final_rev01.csv")
+df_visits = pd.read_csv("../Hba1cData/fact_visits_final_rev01.csv")
 
 # Prepare data
 data = df_visits[['patient_id', 'visited_date', 'sugar', 'hba1c']].copy()
